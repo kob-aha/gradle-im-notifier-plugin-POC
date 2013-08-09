@@ -1,0 +1,54 @@
+apply plugin: GTalk
+
+class GTalk implements Plugin<Project> {
+
+	def org.jivesoftware.smack.XMPPConnection connection = null
+	def connConfig = new org.jivesoftware.smack.ConnectionConfiguration("talk.google.com", 5222,"gmail.com") 
+
+	void apply(Project project) {
+	    project.extensions.create("notifier", GTalkPluginExtension);
+	    project.task('gtalkNotify') << {
+            //connection = new org.jivesoftware.smack.XMPPConnection(connConfig);
+            //connection.connect();
+            //connection.login(project.notifier.senderMail, project.notifier.senderPass)
+            
+            println "Sending message ${project.notifier.message}"
+            
+            def connConfig = new org.jivesoftware.smack.ConnectionConfiguration("talk.google.com", 5222,"gmail.com")
+            org.jivesoftware.smack.XMPPConnection connection = new org.jivesoftware.smack.XMPPConnection(connConfig)             
+            connection.connect()
+            connection.login(project.notifier.senderMail, project.notifier.senderPass)
+            
+            sendMessage(project.notifier.recipient, project.notifier.message, connection)
+            //disconnect()
+        }
+    }
+    
+    void sendMessage(String to, String message, org.jivesoftware.smack.XMPPConnection connection) {
+            org.jivesoftware.smack.packet.Message msg = new org.jivesoftware.smack.packet.Message(to, 
+            	org.jivesoftware.smack.packet.Message.Type.chat);
+            msg.setBody(message);
+            
+            
+            connection.sendPacket(msg)
+            connection.disconnect()
+    }
+
+    public void disconnect() {
+            connection.disconnect();
+    }
+}
+
+class GTalkPluginExtension {
+    String recipient = "kobyahron@gmail.com"
+    String message = "Build failed"
+    String senderMail = "redcat.build@gmail.com"
+    String senderPass = "redkatec13"
+    
+}
+
+buildscript {
+	dependencies {
+    	classpath fileTree(dir: 'lib', include: '**/*.jar')
+	}
+}
