@@ -51,16 +51,16 @@ tasks.addRule('Pattern: "notify<TaskName>": Executes the task') { String taskNam
 		def targetTaskName = taskName - prefix
 		def taskTaskNameUncapitalize = targetTaskName[0].toLowerCase() + targetTaskName[1..-1]
 		
-		Task t = tasks.findByName(taskTaskNameUncapitalize)
+		Task notifiedTask = tasks.findByName(taskTaskNameUncapitalize)
 		Task notifierTask = tasks.findByName(notifierTaskName)
 		
-		notifierTask.notifiedTask = t
-		t.finalizedBy = [notifierTaskName]
+		if (notifiedTask && notifierTask) {
 		
-		task(taskName) {
-			dependsOn = ["${taskTaskNameUncapitalize}"]			
-			doFirst {
-				println(tasks.findByName(taskTaskNameUncapitalize).state.executed)
+			notifierTask.notifiedTask = notifiedTask
+			notifiedTask.finalizedBy = [notifierTaskName]
+		
+			task(taskName) {
+				dependsOn = [notifiedTask]			
 			}
 		}
 	}
