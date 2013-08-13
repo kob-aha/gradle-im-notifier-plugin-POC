@@ -15,7 +15,7 @@ class NotifierTask extends DefaultTask {
 	String senderPass = null
 	
 	@Optional
-	String message = "Build failed"
+	Task notifiedTask = null
 	
 	GTalkClient client
 	
@@ -31,12 +31,16 @@ class NotifierTask extends DefaultTask {
 		
 		if (!senderPass || !senderMail) {
 			def config = new ConfigSlurper().parse(
-				new File("${project.rootProject.rootDir}/authentication.properties").toURL())
+				new File("${project.rootProject.rootDir}/authentication.properties").toURI().toURL())
 			setSenderMail(config.sender.mail)
 			setSenderPass(config.sender.password)
 		}
 		
-		client.sendMessage(recipient, message)
+		if (notifiedTask?.state?.failure) {
+			client.sendMessage(recipient, "Running task ${notifiedTask.name} failed")
+		} else {
+			client.sendMessage(recipient, "Running task ${notifiedTask.name} finished successfully")
+		}
 	}
 	
 	public void setSenderPass(String senderPass) {
