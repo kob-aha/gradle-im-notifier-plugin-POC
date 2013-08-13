@@ -9,10 +9,10 @@ class NotifierTask extends DefaultTask {
 	String recipient = "kobyahron@gmail.com"
 	
 	@Optional
-	String senderMail = "redcat.build@gmail.com"
+	String senderMail = null
 	
 	@Optional
-	String senderPass = "redkatec13"
+	String senderPass = null
 	
 	@Optional
 	String message = "Build failed"
@@ -28,6 +28,14 @@ class NotifierTask extends DefaultTask {
 	
 	@TaskAction
 	def notifyGTalk() {
+		
+		if (!senderPass || !senderMail) {
+			def config = new ConfigSlurper().parse(
+				new File("${project.rootProject.rootDir}/authentication.properties").toURL())
+			setSenderMail(config.sender.mail)
+			setSenderPass(config.sender.password)
+		}
+		
 		client.sendMessage(recipient, message)
 	}
 	
