@@ -5,15 +5,7 @@ import org.gradle.api.tasks.*
 import com.ka.gradle.plugin.notifier.*
 
 class NotifierTask extends DefaultTask {
-	@Optional
-	String recipient = "kobyahron@gmail.com"
-	
-	@Optional
-	String senderMail = null
-	
-	@Optional
-	String senderPass = null
-	
+
 	@Optional
 	Task notifiedTask = null
 	
@@ -22,34 +14,26 @@ class NotifierTask extends DefaultTask {
 	public NotifierTask() {
 		super()
 		
-		client = new GTalkClient(senderMail, senderPass)
+		client = new GTalkClient()
 	}
 	
 	
 	@TaskAction
 	def notifyGTalk() {
+	
+		def pluginExtension = project.imNotifier
 		
-		if (!senderPass || !senderMail) {
-			def config = new ConfigSlurper().parse(
-				new File("${project.rootProject.rootDir}/authentication.properties").toURI().toURL())
-			setSenderMail(config.sender.mail)
-			setSenderPass(config.sender.password)
+		if (!pluginExtension.senderPass || !pluginExtension.senderMail ||
+			!pluginExtension.recipient) {
+			
+			System.err.println('One of senderMail, senderPass or recipient is missing. Exit notifier.') 
+			return
 		}
-		
+			
 		if (notifiedTask?.state?.failure) {
-			client.sendMessage(recipient, "Running task ${notifiedTask.name} failed")
+			client.sendMessage(pluginExtension, "Running task ${notifiedTask.name} failed")
 		} else {
-			client.sendMessage(recipient, "Running task ${notifiedTask.name} finished successfully")
+			client.sendMessage(pluginExtension, "Running task ${notifiedTask.name} finished successfully")
 		}
-	}
-	
-	public void setSenderPass(String senderPass) {
-		this.senderPass = senderPass
-		client.senderPass = senderPass 
-	}
-	
-	public void setSenderMail(String senderMail) {
-		this.senderMail = senderMail
-		client.senderMail = senderMail
 	}
 }

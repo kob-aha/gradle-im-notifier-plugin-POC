@@ -38,3 +38,7 @@ task helloTask << {
 	println "Hello"
 //	throw new RuntimeException()
 }
+
+imNotifier {
+	recipient = 'kobyahron@gmail.com'
+}

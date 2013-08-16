@@ -3,4 +3,4 @@ build
 *.zip
 .*
 !.gitignore
-authentication.properties
+im-notifier.properties
