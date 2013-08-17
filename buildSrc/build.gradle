@@ -1,3 +1,0 @@
-dependencies {
-	compile fileTree(dir: "${project.rootDir}/../lib", include: '**/*.jar')
-}

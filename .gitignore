@@ -4,3 +4,4 @@ build
 .*
 !.gitignore
 im-notifier.properties
+*~

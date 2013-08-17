@@ -10,7 +10,7 @@
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: com.ka.gradle.plugin.notifier.IMNotifierPlugin
+apply plugin: 'im-notifier'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -42,3 +42,16 @@ task helloTask << {
 imNotifier {
 	recipient = 'kobyahron@gmail.com'
 }
+
+buildscript {
+	repositories {
+		maven {
+			url 'file:../im-notifier-plugin/lib'		
+		}
+	}
+
+	dependencies {
+		classpath group: 'com.ka.gradle.plugin.notifier', name: 'im-notifier-plugin', version: '1.0'
+		classpath fileTree(dir: "${project.rootDir}/lib", include: '**/smack*.jar')
+	}
+}	
