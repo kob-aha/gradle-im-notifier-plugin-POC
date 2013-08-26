@@ -12,12 +12,26 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'im-notifier'
 
+buildscript {
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath group: 'com.ka.gradle.plugin.notifier', name: 'im-notifier', version: '1.0'
+	}
+}
+
+// Add build script repositories to regular project
+rootProject.buildscript.repositories.each { repositories.add(it) }
+
 // In this section you declare where to find the dependencies of your project
 repositories {
     // Use 'maven central' for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    mavenCentral()
-    mavenLocal()
+	mavenLocal()
+    mavenCentral()    
 }
 
 // In this section you declare the dependencies for your production and test code
@@ -31,27 +45,30 @@ dependencies {
     // 'test.useTestNG()' to your build script.
     testCompile "junit:junit:4.11"
     
-    compile fileTree(dir: 'lib', include: '**/*.jar')
+//    compile fileTree(dir: 'lib', include: '**/*.jar')
 }
 
-task helloTask << {
-	println "Hello"
-//	throw new RuntimeException()
+task finalizer << {
+	println "finalize"
+}
+
+task failure {
+	doFirst {
+		throw new RuntimeException()
+	}
+	
+	finalizedBy 'finalizer'
+}
+
+task helloTask {
+	doFirst {
+		println "Hello"
+		throw new RuntimeException()
+	}
+	
+//	dependsOn 'failure'
 }
 
 imNotifier {
 	recipient = 'kobyahron@gmail.com'
 }
-
-buildscript {
-	repositories {
-		maven {
-			url 'file:../im-notifier-plugin/lib'		
-		}
-	}
-
-	dependencies {
-		classpath group: 'com.ka.gradle.plugin.notifier', name: 'im-notifier-plugin', version: '1.0'
-		classpath fileTree(dir: "${project.rootDir}/lib", include: '**/smack*.jar')
-	}
-}	
